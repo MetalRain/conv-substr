@@ -1,6 +1,8 @@
 import numpy as np
 import random
 
+# convolve2D by SamratSahoo
+# https://gist.github.com/SamratSahoo/cef04a39a4033f7bec0299a10701eb95 
 def convolve2D(image, kernel, padding=0, strides=1):
     # Cross Correlation
     kernel = np.flipud(np.fliplr(kernel))

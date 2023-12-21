@@ -9,5 +9,5 @@ This repo explores this idea and maybe later compares it to other solutions.
 But what is a convolution? by 3Blue1Brown
 https://www.youtube.com/watch?v=KuXjwB4LzSA
 
-2D convolution by @SamratSahoo
+easy to understand 2D convolution implementation by @SamratSahoo
 https://gist.github.com/SamratSahoo/cef04a39a4033f7bec0299a10701eb95

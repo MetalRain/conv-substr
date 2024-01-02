@@ -79,7 +79,7 @@ def main_hot():
     results = convolve2D(np.array(haystack_hot), np.array(needle_hot), 0)
 
     for index, bits_matching_np in enumerate(results):
-        bits_matching = int(bits_matching_np)
+        bits_matching = int(bits_matching_np[0])
         if bits_matching == expected_bit_matches:
             print(f'Substring matched at index {index}')
             print(f'Python index {haystack_str.index(needle_str)}')

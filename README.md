@@ -4,10 +4,12 @@
 
 This repo explores this idea and maybe later compares it to other solutions.
 
+
 ## DNA base alignment
 
 I found out that DNA base sequences are aligned by using [Burrows-Wheeler Alignment](
 https://mr-easy.github.io/2019-12-19-burrows-wheeler-alignment-part-1/) could convolution be useful here, since it already gives us quality of match.
+
 
 ## References
 

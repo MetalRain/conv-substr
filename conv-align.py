@@ -1,48 +1,33 @@
 import numpy as np
+from numpy.lib.stride_tricks import as_strided
 import random
 
-# convolve2D by SamratSahoo
-# https://gist.github.com/SamratSahoo/cef04a39a4033f7bec0299a10701eb95 
+# ChatGPT optimized version of 2D convolution by SamratSahoo
+# https://gist.github.com/SamratSahoo/cef04a39a4033f7bec0299a10701eb95
+# using as_strided view into array and optimized np.tensordot implementation
 def convolve2D(image, kernel, padding=0, strides=1):
     # Cross Correlation
     kernel = np.flipud(np.fliplr(kernel))
 
-    # Gather Shapes of Kernel + Image + Padding
-    xKernShape = kernel.shape[0]
-    yKernShape = kernel.shape[1]
-    xImgShape = image.shape[0]
-    yImgShape = image.shape[1]
+    # Gather shapes
+    xKernShape, yKernShape = kernel.shape
+    xImgShape, yImgShape = image.shape
 
-    # Shape of Output Convolution
-    xOutput = int(((xImgShape - xKernShape + 2 * padding) / strides) + 1)
-    yOutput = int(((yImgShape - yKernShape + 2 * padding) / strides) + 1)
-    output = np.zeros((xOutput, yOutput))
+    # Calculate output shape
+    xOutput = (xImgShape - xKernShape + 2 * padding) // strides + 1
+    yOutput = (yImgShape - yKernShape + 2 * padding) // strides + 1
 
-    # Apply Equal Padding to All Sides
+    # Pad the image
     if padding != 0:
-        imagePadded = np.zeros((image.shape[0] + padding*2, image.shape[1] + padding*2))
-        imagePadded[int(padding):int(-1 * padding), int(padding):int(-1 * padding)] = image
-        print(imagePadded)
-    else:
-        imagePadded = image
+        image = np.pad(image, pad_width=padding, mode='constant', constant_values=0)
 
-    # Iterate through image
-    for y in range(image.shape[1]):
-        # Exit Convolution
-        if y > image.shape[1] - yKernShape:
-            break
-        # Only Convolve if y has gone down by the specified Strides
-        if y % strides == 0:
-            for x in range(image.shape[0]):
-                # Go to next row once kernel is out of bounds
-                if x > image.shape[0] - xKernShape:
-                    break
-                try:
-                    # Only Convolve if x has moved by the specified Strides
-                    if x % strides == 0:
-                        output[x, y] = (kernel * imagePadded[x: x + xKernShape, y: y + yKernShape]).sum()
-                except:
-                    break
+    # Use as_strided to create a view of image data with sliding window
+    output_shape = (xOutput, yOutput, xKernShape, yKernShape)
+    strides = (image.strides[0]*strides, image.strides[1]*strides, image.strides[0], image.strides[1])
+    convolved = as_strided(image, shape=output_shape, strides=strides)
+
+    # Perform convolution
+    output = np.tensordot(convolved, kernel, axes=((2,3), (0,1)))
 
     return output
 
@@ -81,9 +66,9 @@ def main():
     haystack_hot = str_to_one_hot(haystack_str)
     needle_hot = reverse_hot(str_to_one_hot(needle_str))
     expected_bit_matches = calculate_bits(needle_hot)
-    close_bit_matches = expected_bit_matches * 0.55
+    close_bit_matches = expected_bit_matches * 0.7
 
-    results = convolve2D(np.array(haystack_hot), np.array(needle_hot), 0)
+    results = convolve2D_fast(np.array(haystack_hot), np.array(needle_hot), 0)
 
     for index, bits_matching_np in enumerate(results):
         bits_matching = int(bits_matching_np[0])
